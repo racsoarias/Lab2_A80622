@@ -14,7 +14,7 @@ public:
 	Pirata();
 	virtual ~Pirata();
 	void robe(Tesoro);
-	void robeNoRe(Tesoro); 
+	void robeNoRe(Tesoro);
 private:
 	void robeRe(Elemento **, int, int, int, int, string);
 	void printToFile(string, string);

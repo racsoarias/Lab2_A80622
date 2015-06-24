@@ -37,13 +37,15 @@ void Pirata::robeRe(Elemento ** arreglo, int tamArreglo, int pesoAcum, int pos, 
 			valorStr << valorAcum;
 			pesoStr << pesoAcum;
 			mejorRobo(pesoAcum, valorAcum, tesoro);
+			/*
 			tesoro = "Peso del motín: " + pesoStr.str() + "\nValor del motín : " + valorStr.str() +
-				"\nCompuesto por : \n" + tesoro + "\n\n";
+			"\nCompuesto por : \n" + tesoro + "\n\n";
 			printToFile(tesoro, "robado-recursivo.txt");
+			*/
 		}
 	}
 	else{
-		printToFile("\nNo escogidos, compuesto por: \n" + tesoro + "\n\n", "sobro.txt");
+		//printToFile("\nNo escogidos, compuesto por: \n" + tesoro + "\n\n", "sobro.txt");
 	}
 }
 
@@ -51,31 +53,53 @@ void Pirata::robeRe(Elemento ** arreglo, int tamArreglo, int pesoAcum, int pos, 
 void Pirata::robeNoRe(Tesoro treasure){
 	this->valor = 0;
 	this->peso = 0;
-	this->elementos = ""; 
-	int pesoSol = 0, valorSol = 0, tam = treasure.getTam(), count = 0, i = 0;
+	this->elementos = "";
+	int pesoSol = 0, valorSol = 0, tam = treasure.getTam(), i = 0, auxCapSaco = 0, capSaco = this->capSaco;
 	string elementos = "";
+	Elemento * aux = NULL;
 	Elemento ** arreglo = treasure.arreglo;
-	Elemento ** solucion = new Elemento*[tam];
 
 	sort(arreglo, tam);
 
-	while (tam%10 > count){
-		for (i; i < tam; i++){
-			if (arreglo[i]->getGramos() <= (capSaco - pesoSol)){
-				solucion[i] = arreglo[i];
-				pesoSol += solucion[i]->getGramos();
-				valorSol += solucion[i]->getValor();
-				elementos += solucion[i]->getID() + "\n";
+	for (i; i < tam; i++){
+		if (arreglo[i]->getGramos() <= capSaco){
+			pesoSol += arreglo[i]->getGramos();
+			valorSol += arreglo[i]->getValor();
+			elementos += arreglo[i]->getID() + "\n";
+			capSaco = capSaco - arreglo[i]->getGramos();
+			auxCapSaco = capSaco;
+			break;
+		}
+	}
+	for (int j = i + 1; j < tam; j++){
+		if (arreglo[j]->getGramos() <= capSaco){
+			if (aux == NULL){
+				aux = arreglo[j];
+				auxCapSaco = capSaco - aux->getGramos();
+			}
+			else{
+				if (auxCapSaco >= arreglo[j]->getGramos()){//Si cabe en el saco, lo meto
+					pesoSol += aux->getGramos();
+					valorSol += aux->getValor();
+					elementos += aux->getID() + "\n";
+					capSaco = capSaco - aux->getGramos();
+					auxCapSaco = capSaco;
+					aux = arreglo[j];
+					auxCapSaco = capSaco - aux->getGramos();
+				}
+				else{//Si es mejor, reemplazo
+					if (arreglo[j]->getValor() > aux->getValor()){
+						aux = arreglo[j];
+						auxCapSaco = capSaco - aux->getGramos();
+					}
+				}
 			}
 		}
-		mejorRobo(pesoSol, valorSol, elementos);
-		pesoSol = 0;
-		valorSol = 0;
-		elementos= "";
-		solucion = new Elemento*[tam]; 
-		count++;
-		i = count;
 	}
+	pesoSol += aux->getGramos();
+	valorSol += aux->getValor();
+	elementos += aux->getID() + "\n";
+	mejorRobo(pesoSol, valorSol, elementos);
 	stringstream capSacoStr, pesoStr, valorStr;
 	capSacoStr << this->capSaco;
 	pesoStr << this->peso;
@@ -113,7 +137,7 @@ void Pirata::mejorRobo(int peso, int valor, string elementos){
 	}
 }
 
-void Pirata::printToFile(string str, string filename){	
+void Pirata::printToFile(string str, string filename){
 	fstream file;
 	file.open(filename, ios::in | ios::out | ios::app);
 	file << str;

@@ -1,8 +1,0 @@
-Capacidad del pirata: 1650, capacidad utilizada: 1624
-Ganancia obtenida: 7468, por el robo de: 
-COR1009
-MON1012
-ANI1002
-MON1013
-
-
